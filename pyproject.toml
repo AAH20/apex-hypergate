@@ -1,0 +1,58 @@
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "apex-hypergate"
+version = "1.0.0"
+description = "Sovereign Zero-Latency AI Agent & MCP Gateway Daemon with Hermes Paperclip Governance, E2E Testing Framework, and Alibaba Open Code Review"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "Apache-2.0"}
+authors = [
+    {name = "Apex Sovereign Engineering", email = "engineering@apex-hypergate.org"}
+]
+keywords = [
+    "mcp",
+    "model-context-protocol",
+    "agent-gateway",
+    "reverse-proxy",
+    "claude-code",
+    "cursor",
+    "paperclip-adapter",
+    "hermes-agent",
+    "alibaba-open-code-review",
+    "code-review",
+    "e2e-testing",
+    "security-sandbox",
+    "token-slasher",
+    "kv-cache",
+    "zero-dependency",
+    "ai-infrastructure"
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Build Tools",
+    "Topic :: System :: Distributed Computing"
+]
+dependencies = []
+
+[project.scripts]
+hypergate = "apex_hypergate.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/AAH20/apex-hypergate"
+Repository = "https://github.com/AAH20/apex-hypergate"
+Documentation = "https://github.com/AAH20/apex-hypergate/tree/main/docs"
