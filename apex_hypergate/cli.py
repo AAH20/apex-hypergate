@@ -107,14 +107,20 @@ def cmd_e2e_test(args: argparse.Namespace) -> int:
 
 
 def cmd_serve(args: argparse.Namespace) -> int:
-    """Launch mock gateway service for testing."""
+    """Print the configured gateway tool mounts.
+
+    NOTE: No gateway daemon or network transport is implemented. This
+    command does not bind a socket, listen for connections, or proxy
+    requests; it only reports the configuration that a future daemon
+    would use.
+    """
     port = getattr(args, "port", 8000)
     orchestrator = ApexHyperGateOrchestrator()
     tools = orchestrator.supervisor.list_all_tools()
-    print("Apex_HyperGate Daemon Initialized")
-    print(f"Local Proxy Endpoint: http://127.0.0.1:{port}/v1")
+    print("Apex_HyperGate CLI (no daemon/transport implemented)")
+    print("NOTICE: 'serve' does not bind a socket or start a listening gateway.")
+    print(f"Configured Proxy Endpoint (not listening): http://127.0.0.1:{port}/v1")
     print(f"Mounted Tools Count : {len(tools)} (including 5 native Apex ecosystem kernels)")
-    print("Press Ctrl+C to stop.")
     return 0
 
 
@@ -141,8 +147,8 @@ def main() -> None:
     p_e2e = subparsers.add_parser("e2e-test", help="Run Paperclip & Alibaba OCR E2E test harness")
 
     # serve
-    p_srv = subparsers.add_parser("serve", help="Run gateway daemon")
-    p_srv.add_argument("--port", type=int, default=8000, help="Port to bind")
+    p_srv = subparsers.add_parser("serve", help="Print gateway tool-mount configuration (no daemon implemented)")
+    p_srv.add_argument("--port", type=int, default=8000, help="Configured proxy port (not bound; no daemon implemented)")
 
     args = parser.parse_args()
 
