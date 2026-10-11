@@ -1,8 +1,8 @@
-"""Apex_HyperGate: Hermes Paperclip Company OS Adapter.
+"""Apex_HyperGate: Paperclip-Style Company OS Adapter (local implementation).
 
-Integrates Nous Research Hermes Agent with Paperclip Company OS
-(@paperclipai/hermes-paperclip-adapter): budget governance, multi-heartbeat task queues,
-and ActionLedger cryptographic audit receipt generation.
+A local reimplementation of a Paperclip-style budget governor for agent tasks:
+USD budget governance, heartbeat accounting, and SHA-256 ActionLedger-style receipt
+generation. It has no dependency on @paperclipai/hermes-paperclip-adapter.
 """
 
 import time

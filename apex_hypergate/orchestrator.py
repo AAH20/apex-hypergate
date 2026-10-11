@@ -34,11 +34,11 @@ class ApexHyperGateOrchestrator:
         self.paperclip = HermesPaperclipAdapter()
         self.reviewer = AlibabaOpenCodeReviewer()
         
-        # Auto-mount native tools from the 370-kernel Apex ecosystem
+        # Mount the five native tool schemas registered below (schema-only; no execution backend)
         self._mount_apex_ecosystem_tools()
 
     def _mount_apex_ecosystem_tools(self) -> None:
-        """Mount native deep-tech tools from Ahmed's 370-kernel portfolio."""
+        """Register five native tool schemas (schema-only; no execution backend)."""
         self.supervisor.register_native_tool(
             name="apex_agentic_memory",
             description="Query bi-temporal knowledge graph, Claude-Mem observations, and Hindsight reflections",

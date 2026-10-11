@@ -1,7 +1,8 @@
-"""Apex_HyperGate: Alibaba Open Code Review (OCR) Hybrid Review Engine.
+"""Apex_HyperGate: Local Code Review Engine (inspired by Alibaba Open Code Review).
 
-Implements the deterministic rule checks and Git diff analysis of Alibaba's Open Code Review
-(alibaba/open-code-review): NPE risks, concurrency issues, SQLi/XSS vulnerabilities, and resource leaks.
+A local, deterministic regex engine for Git diffs. It bundles no Alibaba code and does not
+call alibaba/open-code-review. It checks four added-line patterns: SQLi-style query
+interpolation, hardcoded credentials, global-state mutation, and unclosed resources.
 """
 
 import time

@@ -2,11 +2,11 @@
 
 ## 1. Overview & AACR-Bench Architecture
 
-Alibaba Open Code Review (`alibaba/open-code-review`) is an open-source automated code review framework introduced by Alibaba Group. Designed to eliminate the hallucinations and unpredictable token costs of pure LLM-based code reviewers, Alibaba OCR implements a hybrid architecture:
+Alibaba Open Code Review (`alibaba/open-code-review`) is an automated code review framework introduced by Alibaba Group. Apex_HyperGate does **not** bundle, import, or invoke any Alibaba code; the engine described here is a **local, deterministic reimplementation** of the same idea: replace the hallucinations and unpredictable token costs of pure LLM-based reviewers with fixed heuristics. The local implementation consists of four regex rules:
 
-1. **Deterministic Static Rule Checker**: Instantly verifies high-confidence structural hazards (SQL injection, hardcoded secrets, concurrency race conditions, resource leaks) in $< 50\,\mu\text{s}$ using zero-shot deterministic heuristics.
-2. **AACR-Bench Precision Metrics**: Evaluated against the Alibaba Automated Code Review Benchmark (AACR-Bench) to ensure $> 95\%$ precision and minimize false positive alert fatigue.
-3. **Differential Git Diff Processing**: Operates directly on unified diff chunks (`---`, `+++`, `@@ -l,s +l,s @@`) rather than whole files, drastically minimizing token overhead.
+1. **Deterministic Static Rule Checker**: Runs four regex checks for structural hazards (SQL injection, hardcoded credentials, global-state mutation, unclosed resources) on the added lines of a diff.
+2. **No measured benchmark**: The engine is not evaluated against AACR-Bench. `CodeReviewReport.aacr_precision` is a placeholder set to `1.0` when no findings are produced and `0.95` otherwise — it is not a measurement.
+3. **Differential Git Diff Processing**: Operates directly on unified diff chunks (`---`, `+++`, `@@ -l,s +l,s @@`) rather than whole files.
 
 ```mermaid
 flowchart LR
@@ -28,24 +28,22 @@ flowchart LR
 
 ## 2. Integrated Rule Catalogs & Detection Signatures
 
-Apex_HyperGate bundles native implementations of Alibaba OCR's primary security and reliability rules:
+Apex_HyperGate bundles **local** implementations of four security and reliability rules (no Alibaba code is used):
 
-| Rule Identifier | Severity | Detection Heuristic | Recommended Remediation |
+| Rule Identifier | Severity | Detection Heuristic (actual regex) | Recommended Remediation |
 | :--- | :--- | :--- | :--- |
-| **`ALIBABA-SEC-001`** | **CRITICAL** | Formatted string or concatenation in SQL statements (`SELECT.*FROM.*%s\|f".*SELECT"`) | Use parameterized queries with bind variables: `cursor.execute('SELECT ... WHERE id = ?', (val,))` |
-| **`ALIBABA-SEC-002`** | **CRITICAL** | Raw secrets matching high-entropy token strings (`AKIA[0-9A-Z]{16}`, `sk-[a-zA-Z0-9]{32,}`, `ghp_[a-zA-Z0-9]{36}`) | Load credentials dynamically from system environment variables via `os.environ.get()` |
-| **`ALIBABA-CONC-001`** | **HIGH** | Mutation of global or shared data structures inside multi-threaded contexts without explicit synchronization locks | Wrap shared state updates in threading locks: `with threading.Lock(): ...` |
-| **`ALIBABA-RES-001`** | **HIGH** | File or network socket opening (`open(`, `socket.connect(`) without context management (`with`) or explicit `.close()` | Utilize RAII context managers: `with open(path) as f: ...` |
+| **`ALIBABA-SEC-001`** | **CRITICAL** | `(execute|cursor\.execute|query)\s*\(\s*(f["']|["'].*%s|["'].*\+)` — f-string / `%s` / `+` interpolation in a query call | Use parameterized queries with bind variables: `cursor.execute('SELECT ... WHERE id = ?', (val,))` |
+| **`ALIBABA-SEC-002`** | **CRITICAL** | `(api_key|secret_key|password|token)\s*=\s*["'][A-Za-z0-9_\-]{16,}["']` — a generic assignment to a credential-named variable. It does **not** match provider-specific formats such as `AKIA…`, `sk-…`, or `ghp_…`. | Load credentials dynamically from system environment variables via `os.environ.get()` |
+| **`ALIBABA-CONC-001`** | **HIGH** | `global\s+[A-Za-z0-9_]+` — any `global` declaration on an added line | Wrap shared state updates in threading locks: `with threading.Lock(): ...` |
+| **`ALIBABA-RES-001`** | **MEDIUM** | `(open\(|sqlite3\.connect\(|socket\.socket\().*` on a line that does not start with `with ` | Utilize RAII context managers: `with open(path) as f: ...` |
 
 ---
 
-## 3. Review Latency & Precision Benchmarks
+## 3. Review Latency & Dependency Footprint
 
-Across the AACR-Bench test suite, the Apex_HyperGate embedded Alibaba OCR engine delivers microsecond-level turnaround:
-
-- **Review Latency**: **$3.47\,\mu\text{s}$** per diff chunk (over $280,000$ diff evaluations per second).
-- **Rule Precision**: **$95.0\%$** against known AACR-Bench true-positive test sets.
-- **Dependency Footprint**: $0$ external C-extensions, $0$ third-party packages; pure Python standard library regex and tokenization.
+- **Review Latency**: measured per run by `CodeReviewReport.review_latency_us` and by `hypergate benchmark`. No fixed figure is published here (there is no committed benchmark artifact).
+- **Rule Precision**: not measured; see the `aacr_precision` placeholder note above.
+- **Dependency Footprint**: $0$ external C-extensions, $0$ third-party packages; pure Python standard library `re`.
 
 ```mermaid
 sequenceDiagram
@@ -70,10 +68,10 @@ sequenceDiagram
 Review staged git changes directly from the command line:
 
 ```bash
-# Review a diff file or standard git patch
-git diff HEAD~1 | hypergate review
+# Review a unified diff file (the command reads a file, not stdin)
+hypergate review --file changes.diff
 
-# Review built-in sample diff
+# Review the built-in sample diff
 hypergate review
 ```
 
@@ -92,7 +90,7 @@ diff_content = """--- a/services/database.py
 """
 
 reviewer = AlibabaOpenCodeReviewer()
-report = reviewer.review_diff(diff_content)
+report = reviewer.review_git_diff(diff_content)
 
 print(f"Reviewed files: {report.files_reviewed}")
 print(f"Violations detected: {len(report.findings)}")

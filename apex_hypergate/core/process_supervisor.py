@@ -1,7 +1,9 @@
-"""Apex_HyperGate: Process Lifecycle Supervisor & Subprocess Pool.
+"""Apex_HyperGate: Tool Registry (process-supervisor scaffold).
 
-Manages local stdio and HTTP/SSE MCP server daemons with non-blocking I/O,
-heartbeat health checks, auto-restart on crash, and clean zero-orphan shutdowns.
+NOTE: despite the class name, this module does not spawn or manage subprocesses. It is an
+in-memory registry of native tool schemas plus a placeholder for external server metadata.
+`subprocess` is imported but unused; there is no I/O, health-check ping, auto-restart, or
+orphan handling. See the README Roadmap.
 """
 
 import subprocess
@@ -12,7 +14,7 @@ from apex_hypergate.core.primitives import MCPToolSchema
 
 
 class MCPProcessSupervisor:
-    """Zero-orphan subprocess pool and health monitor for MCP servers."""
+    """In-memory tool-schema registry with a placeholder for external server metadata."""
 
     def __init__(self):
         # server_id -> metadata dictionary
@@ -28,7 +30,7 @@ class MCPProcessSupervisor:
         server_id: str = "native",
         cost_tokens: int = 40,
     ) -> MCPToolSchema:
-        """Register an in-process native tool (e.g. from the 370 Apex kernels)."""
+        """Register an in-process native tool schema (schema only; no execution backend)."""
         tool = MCPToolSchema(
             name=name,
             description=description,
@@ -40,7 +42,7 @@ class MCPProcessSupervisor:
         return tool
 
     def register_server(self, server_id: str, command: str, args: List[str]) -> Dict[str, Any]:
-        """Register and track a local external MCP server daemon."""
+        """Record metadata for an external MCP server (does not start a process)."""
         self._servers[server_id] = {
             "server_id": server_id,
             "command": command,
@@ -60,7 +62,7 @@ class MCPProcessSupervisor:
         return self._tools.get(name)
 
     def heartbeat_health_check(self) -> Dict[str, str]:
-        """Perform health probe on all registered server daemons."""
+        """Return the recorded status of each registered server (no live probe is sent)."""
         status_map = {}
         for s_id, s_meta in self._servers.items():
             # In a real environment, send ping frame over stdio pipe
@@ -68,7 +70,7 @@ class MCPProcessSupervisor:
         return status_map
 
     def shutdown_all(self) -> int:
-        """Gracefully terminate all subprocesses with zero orphan leaks."""
+        """Mark all registered servers STOPPED and clear the registry (no processes are terminated)."""
         count = len(self._servers)
         for s_id, s_meta in self._servers.items():
             s_meta["status"] = "STOPPED"

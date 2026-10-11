@@ -1,7 +1,8 @@
 """Apex_HyperGate: Radix-Trie Prefix KV-Cache Router.
 
-Maintains canonical schema serialization and prefix routing to guarantee
-96%+ KV-cache hit affinity across frontier LLM providers and local vLLM instances.
+Maintains canonical schema serialization and tracks prefix hits in memory per session.
+There is no integration with any model provider, so no cross-provider KV-cache hit rate
+is claimed.
 """
 
 from typing import List, Dict, Any, Optional

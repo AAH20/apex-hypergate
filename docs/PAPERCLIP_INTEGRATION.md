@@ -2,9 +2,9 @@
 
 ## 1. Overview & Architectural Motivation
 
-Paperclip (`@paperclipai/hermes-paperclip-adapter`) introduces an institutional governance framework termed the **Company OS** for autonomous agent execution. In autonomous corporate workflows, agent teams are assigned discrete organizational mandates, allocated hard financial budgets denominated in USD, and supervised through periodic execution cycles called **heartbeats**.
+A **Paperclip-style Company OS** governance model introduces an institutional framework for autonomous agent execution. In autonomous corporate workflows, agent teams are assigned discrete organizational mandates, allocated hard financial budgets denominated in USD, and supervised through periodic execution cycles called **heartbeats**. Apex_HyperGate ships a **local reimplementation** of this model and has **no dependency** on the `@paperclipai/hermes-paperclip-adapter` package.
 
-Apex_HyperGate provides first-class native integration with Paperclip Company OS. It mediates every heartbeat, enforces real-time token and USD expenditure ceilings, and emits tamper-evident **ActionLedger** cryptographic audit receipts.
+Apex_HyperGate provides a local, self-contained implementation of this model. It mediates each heartbeat tick, enforces token and USD expenditure ceilings, and emits **ActionLedger**-style SHA-256 audit receipts.
 
 ```mermaid
 sequenceDiagram
@@ -37,32 +37,26 @@ sequenceDiagram
 
 ## 2. Company OS Task Lifecycle & State Machine
 
-Every autonomous operation in Apex_HyperGate is modeled as a formal state machine governed by the `PaperclipTaskState` primitive:
+Every autonomous operation in Apex_HyperGate is modeled as a state machine governed by the `PaperclipTask` dataclass and its `PaperclipTaskStatus` enum:
 
 ```mermaid
 stateDiagram-v2
-    [*] --> CREATED
-    CREATED --> RUNNING : start_heartbeat()
-    RUNNING --> PAUSED : await_user_input()
-    PAUSED --> RUNNING : resume_heartbeat()
-    RUNNING --> BUDGET_EXCEEDED : spend > max_usd_budget
-    RUNNING --> MAX_HEARTBEATS : beats > max_heartbeats
-    RUNNING --> FAILED : unhandled_exception()
-    RUNNING --> COMPLETED : task_deliverable_satisfied()
+    [*] --> QUEUED
+    QUEUED --> IN_PROGRESS : heartbeat_tick() within budget
+    IN_PROGRESS --> IN_PROGRESS : heartbeat_tick() within budget
+    IN_PROGRESS --> BUDGET_EXCEEDED : projected spend > usd_budget
+    IN_PROGRESS --> COMPLETED : mark_task_complete()
     BUDGET_EXCEEDED --> [*]
-    MAX_HEARTBEATS --> [*]
-    FAILED --> [*]
     COMPLETED --> [*]
 ```
 
 ### State Definitions
 
-- **`CREATED`**: Task initialized with target objective, maximum USD spend limit (`max_usd_budget`), and maximum allowable heartbeat count (`max_heartbeats`).
-- **`RUNNING`**: Active execution heartbeat in progress. Tools are invoked, code is written, or analysis is generated.
-- **`PAUSED`**: Execution suspended awaiting external human-in-the-loop validation or external system webhook.
-- **`BUDGET_EXCEEDED`**: Immediate fail-safe circuit breaker triggered. When `spent_usd > max_usd_budget`, all further tool calls are rejected at gateway line speed.
-- **`MAX_HEARTBEATS`**: Preventative halt triggered when the agent exceeds its allocated iteration quota without reaching closure.
-- **`COMPLETED`**: Work unit achieved within financial and operational constraints.
+- **`QUEUED`**: Task created via `create_task(task_id, title, usd_budget)`.
+- **`IN_PROGRESS`**: Set after a successful `heartbeat_tick()`. Tokens and USD are accounted and a receipt is emitted.
+- **`BUDGET_EXCEEDED`**: Set when a `heartbeat_tick()` would push `consumed_usd` above `usd_budget`; that tick is rejected.
+- **`BLOCKED`**: Present in the `PaperclipTaskStatus` enum for a halted task (no transition is wired to it yet).
+- **`COMPLETED`**: Set by `mark_task_complete()`.
 
 ---
 
@@ -89,7 +83,7 @@ For enterprise auditability, Paperclip mandates non-repudiable logs of all auton
 
 $$\mathcal{H}_{\text{receipt}} = \text{SHA256}\left(\text{ToolName} \mathbin{\Vert} \text{Verdict} \mathbin{\Vert} \text{SortedArgs} \mathbin{\Vert} \text{Timestamp}\right)$$
 
-Every receipt is recorded in the task's `action_ledger` list and exported upon task completion, providing SOC2/ISO27001-compliant verification that no unauthorized actions or egress breaches occurred.
+Every receipt is appended to the task's `receipts` list. No compliance certification is claimed.
 
 ---
 
@@ -97,30 +91,29 @@ Every receipt is recorded in the task's `action_ledger` list and exported upon t
 
 ```python
 from apex_hypergate.adapters.paperclip_adapter import HermesPaperclipAdapter
-from apex_hypergate.core.primitives import PaperclipTaskState
 
-# 1. Initialize Hermes Paperclip Adapter with $0.10 limit
+# 1. Initialize the adapter and create a $0.10 budget-governed task
 adapter = HermesPaperclipAdapter()
 task = adapter.create_task(
     task_id="TASK-PROD-9002",
-    goal="Autonomous code migration and test verification",
-    max_usd_budget=0.10,
-    max_heartbeats=10,
+    title="Autonomous code migration and test verification",
+    usd_budget=0.10,
 )
 
-# 2. Execute Heartbeat
-adapter.start_heartbeat(task.task_id)
-
-# 3. Mediate tool execution through Nerve security sandbox
-result = adapter.record_tool_execution(
+# 2. Process one heartbeat tick (accounts USD and emits an ActionLedger receipt)
+can_proceed, task, failure_reason = adapter.heartbeat_tick(
     task_id=task.task_id,
-    tool_name="git_diff_viewer",
-    arguments={"target": "HEAD~1"},
     prompt_tokens=450,
     completion_tokens=220,
+    tool_action_name="git_diff_viewer",
+    tool_payload={"target": "HEAD~1"},
 )
+if not can_proceed:
+    print("Halted:", failure_reason)
 
-# 4. Finalize Heartbeat
-heartbeat_state = adapter.end_heartbeat(task.task_id)
-print(f"Task status: {task.state}, Spent: ${task.spent_usd:.4f}")
+print(f"Task status: {task.status.value}, Spent: ${task.consumed_usd:.4f}, Remaining: ${task.remaining_usd:.4f}")
+
+# 3. Mark complete (emits a final closure receipt)
+task = adapter.mark_task_complete(task.task_id)
+print(f"Receipts: {len(task.receipts)}")
 ```

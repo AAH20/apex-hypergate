@@ -3,15 +3,15 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Python](https://img.shields.io/badge/Python-3.9%20%7C%203.10%20%7C%203.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue.svg)](https://www.python.org/)
 [![Dependencies](https://img.shields.io/badge/Dependencies-Zero%20(Pure%20Stdlib)-success.svg)](https://github.com/AAH20/apex-hypergate)
-[![Latency](https://img.shields.io/badge/Nerve%20Sandbox-9.7%20%C2%B5s-brightgreen.svg)](https://github.com/AAH20/apex-hypergate)
-[![Token-Reduction](https://img.shields.io/badge/Schema%20Tokens--74.4%25-brightgreen.svg)](https://github.com/AAH20/apex-hypergate)
+[![Latency Target](https://img.shields.io/badge/Nerve%20Sandbox-sub--50%C2%B5s%20target-brightgreen.svg)](https://github.com/AAH20/apex-hypergate)
+[![Token-Reduction](https://img.shields.io/badge/Schema%20Tokens-70--85%25%20target-brightgreen.svg)](https://github.com/AAH20/apex-hypergate)
 [![Tests](https://img.shields.io/badge/Tests-15%2F15%20Passing%20(100%25)-brightgreen.svg)](https://github.com/AAH20/apex-hypergate)
 
-**Sovereign Zero-Latency AI Agent & Model Context Protocol (MCP) Gateway Daemon**
+**Sovereign AI Agent Toolkit: MCP Schema Governance, Security Sandboxing & Deterministic Code Review**
 
-Apex_HyperGate is an institutional-grade, zero-latency MCP reverse-proxy and agent gateway daemon engineered for enterprise AI developers and autonomous agent swarms. It natively unifies **Hermes Paperclip Adapter Company OS budget governance**, **Deterministic E2E Testing Framework**, and **Alibaba Open Code Review (`ocr`)** with sub-50µs security sandboxing, 96%+ KV-cache routing, and Alien's Trick WQS schema token slashing.
+Apex_HyperGate is an institutional-grade, pure-Python toolkit for enterprise AI developers and autonomous agent swarms. It unifies a **local Paperclip-style Company OS budget governor**, a **deterministic E2E testing framework**, a **local regex-based code review engine** (inspired by Alibaba Open Code Review), a sub-50µs-target security sandbox, a schema prefix canonicalizer, and Alien's Trick WQS schema token slashing. It is a library plus a CLI; it does not run a network daemon (see Roadmap).
 
-Built with **strictly zero external dependencies** (pure Python standard library), Apex_HyperGate connects in seconds to **Cursor**, **Claude Desktop**, **Claude Code**, **Windsurf**, and **VS Code**.
+Built with **strictly zero external dependencies** (pure Python standard library), Apex_HyperGate writes MCP client configuration JSON for **Cursor**, **Claude Desktop**, **Claude Code**, **Windsurf**, and **VS Code**. It does not yet establish a live MCP connection to those clients (see Roadmap).
 
 ---
 
@@ -28,17 +28,17 @@ flowchart TD
 
     subgraph HyperGate["Apex_HyperGate Gateway Core"]
         direction TB
-        CR["Radix Prefix KV Router\n(Canonical Schemas & 96% Hit Rate)"]
-        WQS["Alien's Trick WQS Slasher\n(Lagrangian Pruning: -74% Tokens)"]
+        CR["Radix Prefix KV Router\n(Canonical Schema Ordering)"]
+        WQS["Alien's Trick WQS Slasher\n(Lagrangian Pruning: token budget)"]
         NS["Nerve Security Sandbox\n(Sub-50us SSRF Firewall & SHA-256 Ledger)"]
-        PC["Hermes Paperclip Adapter\n(Company OS USD Accounting & Heartbeats)"]
-        OCR["Alibaba Open Code Review\n(AACR-Bench Static Rules: SQLi & Concurrency)"]
+        PC["Paperclip-Style Budget Governor\n(USD Accounting & Heartbeats)"]
+        OCR["Local Code Review Rules\n(Static Regex: SQLi & Concurrency)"]
     end
 
     subgraph Ecosystem["Tool & Execution Tier"]
-        E1["Native Apex Kernels (Memory / Decision / Quant)"]
-        E2["Upstream MCP Servers"]
-        E3["Subprocess Tool Sandbox"]
+        E1["Native Tool Schemas (5 registered, schema-only)"]
+        E2["Upstream MCP Servers (roadmap)"]
+        E3["In-Process Tool Registry"]
     end
 
     Clients --> CR
@@ -53,27 +53,23 @@ flowchart TD
 
 ## Key Capabilities
 
-- **Hermes Paperclip Company OS Adapter**: Enforces discrete task lifecycles (`CREATED`, `RUNNING`, `PAUSED`, `COMPLETED`, `BUDGET_EXCEEDED`), real-time USD token accounting, and generates tamper-proof SHA-256 `ActionLedger` receipts.
-- **Alibaba Open Code Review (`ocr`)**: Hybrid static verification engine detecting SQL injection (`ALIBABA-SEC-001`), hardcoded credentials (`ALIBABA-SEC-002`), race conditions (`ALIBABA-CONC-001`), and resource leaks (`ALIBABA-RES-001`) with $>95\%$ precision.
-- **Deterministic E2E Testing Framework**: Comprehensive test harness that executes end-to-end multi-heartbeat agent scenarios under hard financial budget constraints and security barriers.
+- **Paperclip-Style Company OS Adapter (local implementation)**: Enforces discrete task lifecycles (`QUEUED`, `IN_PROGRESS`, `COMPLETED`, `BLOCKED`, `BUDGET_EXCEEDED`), USD token accounting, and generates SHA-256 `ActionLedger`-style receipts. This is a local reimplementation; it has no dependency on `@paperclipai/hermes-paperclip-adapter`.
+- **Local Code Review Engine (inspired by Alibaba Open Code Review)**: A local deterministic regex engine detecting SQL injection (`ALIBABA-SEC-001`), hardcoded credentials (`ALIBABA-SEC-002`), global-state mutation (`ALIBABA-CONC-001`), and unclosed resources (`ALIBABA-RES-001`). It bundles no Alibaba code and reports no measured precision.
+- **Deterministic E2E Testing Framework**: Test harness that executes an end-to-end multi-heartbeat agent scenario under a hard USD budget and security barrier.
 - **Nerve Sub-50µs Security Sandbox**: Line-speed SSRF firewall blocking cloud metadata (`169.254.169.254`, `metadata.google.internal`), private RFC 1918 subnets, path traversals (`/etc/shadow`, `~/.ssh/id_rsa`), and destructive shell mutations (`rm -rf /`).
-- **Alien's Trick WQS Token Slasher**: Lagrangian relaxation knapsack optimizer pruning redundant MCP schema definitions from 50,000+ tokens down to tight context bounds (-70% to -85%) in $< 20\,\mu\text{s}$.
-- **Radix-Trie Prefix KV-Cache Router**: Deterministically normalizes and sorts schema declarations into invariant binary prefixes, securing $96\%+$ prompt cache hits across frontier foundation models.
+- **Alien's Trick WQS Token Slasher**: Lagrangian-relaxation knapsack optimizer that prunes redundant MCP schema definitions under a token budget (design target: 70%-85% reduction).
+- **Radix-Trie Prefix KV-Cache Router**: Deterministically normalizes and sorts schema declarations into an invariant serialized form to maximize prompt-cache prefix stability. Cache hits are tracked in memory per session; there is no integration with any model provider, so no cross-provider hit rate is claimed.
 - **Zero-Dependency Architecture**: 100% pure Python standard library. No native compilation, no third-party package vulnerabilities, zero supply-chain risk.
 
 ---
 
-## Empirical Benchmark SLAs
+## Benchmarking
 
-Measurements recorded on standard Apple Silicon M-series hardware (pure Python standard library):
+`hypergate benchmark` measures average per-call latency for four subsystems at runtime (Nerve sandbox inspection, Alien's Trick token slashing, local code review, and Radix schema canonicalization) on the machine where it runs. It reports those four averages only — there is no cumulative gateway metric and no committed benchmark artifact, so no fixed latency or throughput figures are published here. Run it yourself:
 
-| Subsystem Component | SLA Target | Measured Latency | Throughput |
-| :--- | :--- | :--- | :--- |
-| **Nerve Security Sandbox & SSRF Firewall** | $< 50.00\,\mu\text{s}$ | **$9.70\,\mu\text{s}$** | $> 100,000\,\text{ops/s}$ |
-| **Alien's Trick WQS Token Slasher** | $< 200.00\,\mu\text{s}$ | **$15.28\,\mu\text{s}$** | $> 65,000\,\text{ops/s}$ |
-| **Alibaba Open Code Review (AACR-Bench)** | $< 100.00\,\mu\text{s}$ | **$3.47\,\mu\text{s}$** | $> 280,000\,\text{ops/s}$ |
-| **Radix Trie Schema Canonicalizer** | $< 5.00\,\mu\text{s}$ | **$0.41\,\mu\text{s}$** | $> 2,400,000\,\text{ops/s}$ |
-| **Cumulative Gateway Overhead** | $< 500.00\,\mu\text{s}$ | **$28.86\,\mu\text{s}$** | $> 34,000\,\text{ops/s}$ |
+```bash
+hypergate benchmark --iterations 100
+```
 
 ---
 
@@ -95,39 +91,32 @@ python3 -m apex_hypergate.cli --help
 
 ---
 
-## 1-Click Client Configuration
+## Client Configuration
 
-Apex_HyperGate automatically injects gateway reverse-proxy configurations into installed developer tools:
+`hypergate configure` writes MCP client configuration JSON for installed developer tools. It does not start a proxy or server:
 
 ```bash
-# Auto-configure Cursor, Claude Desktop, Claude Code, Windsurf, and VS Code
+# Write MCP client config JSON for Cursor, Claude Desktop, Claude Code, Windsurf, and VS Code
 hypergate configure --port 8000
 ```
 
-### Manual Configuration Snippets
+### Generated Configuration Block
 
-#### Claude Desktop (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+For every supported client, `configure` writes the following block (there is no HTTP/SSE endpoint, so no `url` form is generated):
+
 ```json
 {
   "mcpServers": {
-    "hypergate": {
-      "command": "python3",
-      "args": ["-m", "apex_hypergate.cli", "serve", "--port", "8000"]
+    "apex-hypergate": {
+      "command": "hypergate",
+      "args": ["mcp-proxy", "--port", "8000"],
+      "env": { "APEX_HYPERGATE_ENDPOINT": "http://127.0.0.1:8000/v1" }
     }
   }
 }
 ```
 
-#### Cursor (`~/.cursor/mcp.json`):
-```json
-{
-  "mcpServers": {
-    "hypergate": {
-      "url": "http://127.0.0.1:8000/v1/sse"
-    }
-  }
-}
-```
+> Note: the generated `mcp-proxy` subcommand does not exist yet, and `hypergate serve` is a placeholder that prints status and exits without binding a port. Live client transport and the HTTP/SSE endpoint are roadmap.
 
 ---
 
@@ -140,10 +129,11 @@ hypergate benchmark --iterations 100
 # 2. Run deterministic E2E integration test suite
 hypergate e2e-test
 
-# 3. Review a Git diff using Alibaba Open Code Review
+# 3. Review a Git diff using the local code review engine
 hypergate review --file changes.diff
 
-# 4. Start the sovereign gateway daemon
+# 4. Initialize the gateway daemon placeholder
+#    (currently prints status and exits without binding a port; roadmap)
 hypergate serve --port 8000
 ```
 
@@ -154,36 +144,56 @@ hypergate serve --port 8000
 ```python
 from apex_hypergate.orchestrator import ApexHyperGateOrchestrator
 
-# Initialize gateway orchestrator
-orchestrator = ApexHyperGateOrchestrator(max_usd_budget=0.10)
+# Initialize the orchestrator (only workspace_root is accepted)
+orchestrator = ApexHyperGateOrchestrator(workspace_root="/path/to/workspace")
 
-# Register external or custom MCP tool
-orchestrator.register_tool(
-    name="query_database",
-    description="Query enterprise relational storage",
-    parameters={
-        "type": "object",
-        "properties": {
-            "sql": {"type": "string", "description": "SQL query string"}
-        },
-        "required": ["sql"]
-    },
-    weight=1.5
+# 1. Prune tool schemas under a token budget and canonicalize the prompt prefix
+tools, metrics = orchestrator.route_and_slash_tools(
+    user_query="query enterprise relational storage",
+    token_budget=2500,
+    session_id="SESSION-1",
 )
+print("Pruned tools:", [t.name for t in tools])
+print("KV-cache prefix hit:", metrics["kv_cache_hit"])
 
-# Dispatch certified execution
-task_id = orchestrator.paperclip_task.task_id
-result = orchestrator.dispatch_tool_call(
-    task_id=task_id,
-    tool_name="query_database",
-    arguments={"sql": "SELECT id, name FROM users WHERE active = 1"},
+# 2. Run the security sandbox over a tool call
+verdict = orchestrator.inspect_and_authorize_tool("view_file", {"path": "src/main.py"})
+print("Safe:", verdict.is_safe, "Receipt:", verdict.receipt_hash)
+
+# 3. Review a Git diff with the local code review engine
+diff_text = """--- a/db.py
++++ b/db.py
+@@ -1,2 +1,3 @@
+ def q(uid):
++    cursor.execute(f\"SELECT * FROM users WHERE id = '{uid}'\")
+     return None
+"""
+report = orchestrator.review_code_diff(diff_text)
+for finding in report.findings:
+    print(finding.severity.value, finding.rule_id, finding.file_path, finding.line_number)
+```
+
+Budget-governed task accounting uses the Paperclip-style adapter directly:
+
+```python
+from apex_hypergate.adapters.paperclip_adapter import HermesPaperclipAdapter
+
+adapter = HermesPaperclipAdapter()
+task = adapter.create_task(task_id="TASK-1", title="Refactor auth endpoint", usd_budget=0.10)
+
+can_proceed, task, failure_reason = adapter.heartbeat_tick(
+    task_id="TASK-1",
     prompt_tokens=320,
     completion_tokens=150,
+    tool_action_name="view_file",
+    tool_payload={"path": "src/auth.py"},
 )
+if not can_proceed:
+    print("Halted:", failure_reason)
+print("Status:", task.status.value, "Spent:", f"${task.consumed_usd:.4f}", "Remaining:", f"${task.remaining_usd:.4f}")
 
-print("Execution Status:", result["status"])
-print("ActionLedger Receipt:", result["receipt_hash"])
-print("Remaining USD Budget:", f"${result['remaining_usd_budget']:.4f}")
+adapter.mark_task_complete("TASK-1")
+print("Receipts:", len(task.receipts))
 ```
 
 ---
@@ -218,6 +228,19 @@ Ran 15 tests in 0.007s
 
 OK
 ```
+
+---
+
+## Roadmap (Not Yet Implemented)
+
+The following are described by the codebase's naming/docstrings but are **not implemented**:
+
+- **Network daemon / MCP transport**: `hypergate serve` prints status and exits without binding a port. There is no stdio, HTTP, SSE, or JSON-RPC MCP transport anywhere in the code.
+- **HTTP/SSE endpoint** (`http://127.0.0.1:8000/v1/sse`) and the generated `hypergate mcp-proxy` subcommand: neither exists.
+- **Live client connection**: `configure` only writes client JSON; no client is actually connected.
+- **Subprocess MCP server management**: `MCPProcessSupervisor` tracks server metadata and imports `subprocess`, but never spawns a process; there is no health-check ping, auto-restart, or orphan handling.
+- **External integrations**: no dependency on `@paperclipai/hermes-paperclip-adapter` and no use of Alibaba `open-code-review` code — both are local reimplementations.
+- **Measured benchmarks / precision / cache-hit rates**: no committed benchmark artifact, no AACR-Bench evaluation, and no model-provider KV-cache integration.
 
 ---
 
